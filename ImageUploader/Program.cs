@@ -74,9 +74,9 @@ app.MapPost("/upload", async (IFormFile file, [FromForm] string title) =>
 });
 
 
-app.MapGet("/pictureFile/{id}", (string id) =>
+app.MapGet("/pictureFile/{id}", async (string id) =>
 {
-    var data = GetImageData(id);
+    var data = await GetImageData(id);
 
     return Results.Stream(async stream =>
     {
@@ -85,9 +85,9 @@ app.MapGet("/pictureFile/{id}", (string id) =>
     }, data["contentType"]);
 });
 
-app.MapGet("/picture/{id}", (string id) =>
+app.MapGet("/picture/{id}", async (string id) =>
 {
-    var data = GetImageData(id);
+    var data = await GetImageData(id);
     return Results.Content(
             $"""
              <html>
@@ -109,11 +109,13 @@ app.Run();
 return;
 
 
-Dictionary<string, string>? GetImageData(string id)
+async Task<Dictionary<string, string>?> GetImageData(string id)
 {
+
     var jsonPath = Path.Combine("image", "imageDb.json");
     var json = File.ReadAllText(jsonPath);
     var data = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(json);
 
     return data?[id];
 }
+
